@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}IndoorPlanterator+ - Home{% endblock %}
+
+{% block content %}
+<div class="welcome-container">
+    <h1>Welcome to IndoorPlanterator+</h1>
+    <p>Your smart solution for indoor plant maintenance.</p>
+    
+    {% if current_user.is_authenticated %}
+        <div class="dashboard-summary">
+            <h2>System Status</h2>
+            <div class="status-grid">
+                <div class="status-item">
+                    <h3>Sensors</h3>
+                    <p id="sensor-status">Connected</p>
+                </div>
+                <div class="status-item">
+                    <h3>Last Update</h3>
+                    <p id="last-update">--:--:--</p>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p>Please login to access the system.</p>
+        <a href="{{ url_for('login') }}" class="login-btn">Login</a>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateStatus() {
+    fetch('/sensor-data')
+        .then(response => response.json())
+        .then(data => {
+            if (data.timestamps && data.timestamps.length > 0) {
+                document.getElementById('last-update').textContent = data.timestamps[data.timestamps.length - 1];
+            }
+        });
+}
+
+// Update every 2 seconds
+setInterval(updateStatus, 2000);
+updateStatus(); // Initial update
+</script>
+{% endblock %}

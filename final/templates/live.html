@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Live Sensor Data{% endblock %}
+
+{% block content %}
+<div class="sensor-container">
+    <div class="current-readings">
+        <div class="reading-box" id="temp-box">
+            <h3>Temperature</h3>
+            <p class="value">-- °C</p>
+        </div>
+        <div class="reading-box" id="humidity-box">
+            <h3>Humidity</h3>
+            <p class="value">-- %</p>
+        </div>
+        <div class="reading-box" id="moisture-box">
+            <h3>Moisture</h3>
+            <p class="value">-- %</p>
+        </div>
+        <div class="reading-box" id="light-box">
+            <h3>Light</h3>
+            <p class="value">-- lux</p>
+        </div>
+    </div>
+    
+    <div class="chart-container">
+        <canvas id="sensorChart"></canvas>
+    </div>
+</div>
+
+<script>
+const ctx = document.getElementById('sensorChart').getContext('2d');
+const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Temperature (°C)',
+            borderColor: '#ff6384',
+            data: []
+        }, {
+            label: 'Humidity (%)',
+            borderColor: '#36a2eb',
+            data: []
+        }, {
+            label: 'Moisture (%)',
+            borderColor: '#4bc0c0',
+            data: []
+        }, {
+            label: 'Light (lux)',
+            borderColor: '#ffcd56',
+            data: []
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+function updateData() {
+    fetch('/sensor-data')
+        .then(response => response.json())
+        .then(data => {
+            // Update chart
+            chart.data.labels = data.timestamps;
+            chart.data.datasets[0].data = data.temperature;
+            chart.data.datasets[1].data = data.humidity;
+            chart.data.datasets[2].data = data.moisture;
+            chart.data.datasets[3].data = data.light;
+            chart.update();
+
+            // Update current readings
+            if (data.temperature.length > 0) {
+                document.querySelector('#temp-box .value').textContent = 
+                    data.temperature[data.temperature.length - 1].toFixed(1) + ' °C';
+                document.querySelector('#humidity-box .value').textContent = 
+                    data.humidity[data.humidity.length - 1].toFixed(1) + ' %';
+                document.querySelector('#moisture-box .value').textContent = 
+                    data.moisture[data.moisture.length - 1].toFixed(1) + ' %';
+                document.querySelector('#light-box .value').textContent = 
+                    data.light[data.light.length - 1].toFixed(1) + ' lux';
+            }
+        });
+}
+
+// Update every 2 seconds
+setInterval(updateData, 2000);
+updateData(); // Initial update
+</script>
+{% endblock %}
