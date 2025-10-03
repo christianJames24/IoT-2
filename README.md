@@ -1,43 +1,51 @@
 # IoT-2
 
-IoT plant monitoring system that tracks temperature and humidity for indoor plants. Built for a college IoT project.
+IoT plant monitoring system for tracking temperature and humidity. This is the IndoorPlanterator+ project for our college IoT class.
 
 ## What it does
 
-- Reads temperature and humidity from a DHT11 sensor on a Raspberry Pi
-- Sends data over MQTT to a Flask web server
-- Shows live sensor readings with real-time charts
-- Stores historical data in a SQLite database
-- Has a web dashboard with login authentication
+Monitors indoor plant conditions using sensors connected to a Raspberry Pi. Data gets sent over MQTT to a Flask web server where you can view live readings and historical data through a web dashboard.
 
-## Hardware
+- Reads temp/humidity from DHT11 sensor every 30 seconds
+- Averages readings over 5 cycles before publishing to MQTT
+- Real-time charts showing sensor data
+- Historical data stored in SQLite database
+- Login-protected web interface
+- Offline data buffering (saves readings locally when MQTT drops, sends them when connection restores)
 
-- Raspberry Pi with DHT11 temperature/humidity sensor (GPIO 4)
-- LED indicator (GPIO 18)
+## Hardware Setup
+
+- Raspberry Pi 4 (GPIO 4 for DHT11 sensor)
+- DHT11 Temperature/Humidity Sensor
+- LED indicator on GPIO 18
+- MQTT Broker running on "rpi2024"
 
 ## Tech Stack
 
-- **Backend**: Flask, Flask-Login, SQLAlchemy
-- **Frontend**: HTML/CSS/JavaScript, Chart.js
-- **IoT**: MQTT (Paho), Adafruit DHT library
-- **Database**: SQLite
+**Backend:**
+- Flask with Flask-Login for auth
+- SQLAlchemy + SQLite for data storage
+- Paho MQTT for sensor communication
 
-## Features
+**Frontend:**
+- HTML/CSS with Chart.js for visualizations
+- JavaScript for live updates
 
-- Live sensor data visualization
-- Historical data table
-- Offline data buffering (saves readings when MQTT connection drops)
-- Averages readings every 5 samples before publishing
-- Login system to protect the dashboard
+**IoT:**
+- Python with Adafruit DHT library
+- RPi.GPIO for hardware control
+- MQTT publish/subscribe pattern
 
-## Setup
+## Project Structure
 
-1. Install dependencies on Raspberry Pi
-2. Run `publisher.py` on the Pi to start collecting sensor data
-3. Run `app.py` on the server to start the web interface
-4. Default login: `admin` / `password`
+- `publisher.py` - Runs on the Pi, reads sensors and publishes to MQTT
+- `app.py` - Flask web server that receives MQTT data and serves the dashboard
+- `base.html`, `login.html`, `live.html`, `historical.html` - Web interface templates
+- `style.css` - Dashboard styling
+- `daily_readings/` - Stores JSON files with sensor readings
 
-## Team
+## How to Run
 
-- Christian (ID: 2232469) - christianvehicle@gmail.com
-- Dennis (ID: 2232694) - dkanat822@gmail.com
+**On the Raspberry Pi:**
+```bash
+python3 publisher.py
